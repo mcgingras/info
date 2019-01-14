@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "manifest_version": 2,
   "description": "Injecting stuff",
-  "homepage_url": "http://danharper.me",
+  "homepage_url": "https://michaels.studio",
   "background": {
     "scripts": [
       "background.js"
@@ -17,5 +17,11 @@
     "https://*/*",
     "http://*/*",
     "tabs"
-  ]
+  ],
+  "content_scripts": [
+   {
+     "matches": ["https://*/*"],
+     "css": ["style.css"]
+   }
+ ]
 }

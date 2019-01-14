@@ -1,3 +1,3 @@
-# Highlight
+# Xandu 2.0
 ---
-keep track of ur shit and also ur highlights
+or, how to collect your thoughts and augment your intelligence.
