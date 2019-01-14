@@ -1,17 +1,11 @@
 {
-  "name": "Injecta",
-  "version": "0.0.1",
+  "name": "Xandu 2.0",
+  "version": "0.0.2",
   "manifest_version": 2,
-  "description": "Injecting stuff",
+  "description": "Xandu helps you compile your throughts from online... organizing and distilling the best of your research into one space.",
   "homepage_url": "https://michaels.studio",
-  "background": {
-    "scripts": [
-      "background.js"
-    ],
-    "persistent": true
-  },
   "browser_action": {
-    "default_title": "Inject!"
+    "default_title": "Xandu 2.0"
   },
   "permissions": [
     "https://*/*",
@@ -21,6 +15,7 @@
   "content_scripts": [
    {
      "matches": ["https://*/*"],
+     "js": ["inject.js"],
      "css": ["style.css"]
    }
  ]
