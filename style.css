@@ -7,6 +7,7 @@
         min-width: 300px;
         font-family: sans-serif;
         background-color: white;
+        border-radius: 2px;
       }
 
       .popup--actionbar{
@@ -15,6 +16,8 @@
         background-color: #FAFAFA;
         padding: 20px;
         box-sizing: border-box;
+        display: flex;
+        align-items: center;
       }
 
       .popup--text{
@@ -35,4 +38,8 @@
         font-size: 14px;
         border-bottom: 1px solid rgba(0,0,0,.05);
         color: black;
+      }
+
+      button{
+
       }
