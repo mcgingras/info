@@ -59,22 +59,21 @@ function removePopup(){
 function createDiv(mx,my,string){
   var popup = document.createElement("DIV");
   var popup__text = document.createElement("DIV");
-  var popup__actionbar = document.createElement("DIV");
   var popup__textarea = document.createElement("DIV");
   var textarea = document.createElement("TEXTAREA");
+  var label = document.createElement("LABEL");
   var textnode = document.createTextNode(string);
+  label.innerHTML = "NEW HIGHLIGHT";
 
   body.appendChild(popup);
   popup.appendChild(popup__textarea);
+  popup__textarea.appendChild(label);
   popup__textarea.appendChild(textarea);
   popup.appendChild(popup__text);
-  popup.appendChild(popup__actionbar);
   popup__text.appendChild(textnode);
 
   popup.classList.add("popup");
   popup__textarea.classList.add("popup--edit")
-  popup__actionbar.classList.add("popup--actionbar");
-  popup__actionbar.classList.add("popup--safe");
   textarea.classList.add("textarea");
   textarea.classList.add("popup--safe");
   popup__text.classList.add("popup--text");
