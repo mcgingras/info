@@ -36,8 +36,12 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
   switch (msg.type) {
     case 'requestData':
       console.log("Request Initiated");
+      const comment = document.getElementById('comment').value;
+      if (comment == null){
+        comment = ""
+      }
       if(string != ""){
-        response(string);
+        response({highlight: string, comment: comment || "" });
         removePopup();
       }
       break;
@@ -61,6 +65,7 @@ function createDiv(mx,my,string){
   var popup__text = document.createElement("DIV");
   var popup__textarea = document.createElement("DIV");
   var textarea = document.createElement("TEXTAREA");
+  textarea.id = "comment";
   var label = document.createElement("LABEL");
   var textnode = document.createTextNode(string);
   label.innerHTML = "NEW HIGHLIGHT";

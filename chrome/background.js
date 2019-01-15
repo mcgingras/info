@@ -15,7 +15,8 @@ const db = app.database();
 // changing the paridigm such that you request the message first
 chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
   chrome.tabs.sendMessage(tabs[0].id, {type: "requestData"}, function(response) {
-    db.ref('test/').set(response);
+    let r = Math.random().toString(36).substring(7);
+    db.ref('posts/'+r).set({highlight: response.highlight, comment: response.comment});
   });
 });
 
