@@ -13,7 +13,7 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
 }
 
 
-
+var string = "";
 var body = document.getElementsByTagName("BODY")[0];
 var isOpen = false;
 
@@ -31,19 +31,20 @@ var getSelectedText = function () {
   return selectedText;
 };
 
-// submit data takes the highlighted text and sends it to the db.
-// TODO: add tags and stuff like that to payload.
-function submitData(data){
-  console.log("submitting data");
-  chrome.runtime.sendMessage({
-      type: "addData",
-      data: data
-    }, (response) => {
-      console.log(response);
-  });
-  removePopup();
-  return true;
-}
+
+chrome.runtime.onMessage.addListener((msg, sender, response) => {
+  switch (msg.type) {
+    case 'requestData':
+      console.log("Request Initiated");
+      response(string);
+      removePopup();
+      break;
+    default:
+      response('unknown request');
+      break;
+  }
+});
+
 
 
 function removePopup(){
@@ -59,12 +60,7 @@ function createDiv(mx,my,string){
   var popup__actionbar = document.createElement("DIV");
   var popup__textarea = document.createElement("DIV");
   var textarea = document.createElement("TEXTAREA");
-  var button = document.createElement("BUTTON");
   var textnode = document.createTextNode(string);
-
-  button.className += "1 popup--safe";
-  button.innerHTML = "Submit"
-  button.onclick = () => {submitData(string)};
 
   body.appendChild(popup);
   popup.appendChild(popup__textarea);
@@ -72,7 +68,6 @@ function createDiv(mx,my,string){
   popup.appendChild(popup__text);
   popup.appendChild(popup__actionbar);
   popup__text.appendChild(textnode);
-  popup__actionbar.appendChild(button);
 
   popup.classList.add("popup");
   popup__textarea.classList.add("popup--edit")
@@ -101,7 +96,7 @@ window.addEventListener('mouseup', function (e) {
     removePopup();
   }
   var result = getSelectedText();
-  var string = result.toString();
+  string = result.toString();
 
   my = String(my) + "px";
   mx = String(mx) + "px";
