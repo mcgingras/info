@@ -36,8 +36,10 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
   switch (msg.type) {
     case 'requestData':
       console.log("Request Initiated");
-      response(string);
-      removePopup();
+      if(string != ""){
+        response(string);
+        removePopup();
+      }
       break;
     default:
       response('unknown request');
