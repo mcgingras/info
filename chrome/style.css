@@ -30,7 +30,7 @@
         color: black;
       }
 
-      label{
+      .popup--label{
         display: block;
         margin: 20px 20px 0 20px;
         padding-bottom: 10px;

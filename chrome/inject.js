@@ -83,24 +83,65 @@ function createDiv(mx,my,string){
   textarea.classList.add("popup--safe");
   popup__text.classList.add("popup--text");
   popup__text.classList.add("popup--safe");
+  label.classList.add('popup--label');
 
   popup.style.left = mx;
   popup.style.top = my;
 }
 
+
+// This is to help differentiate between a click and a drag.
+// I found that often times I was double clicking on something to copy it,
+// but that didnt mean I was trying to activate the highlight to save.
+// So there is a need to differ between a click and a drag for mouseup.
+var flag = 0;
+var x1;
+var y1;
+var x2;
+var y2;
+var minDelta = 10;
+window.addEventListener("mousedown", function(e){
+    x1 = e.clientX;
+    y1 = e.clienyY;
+    flag = 0;
+}, false);
+
+window.addEventListener("mousemove", function(e){
+    x2 = e.clientX;
+    y2 = e.clientY;
+    var dx = Math.abs(x2 - x1);
+    var dy = Math.abs(y2 - y1);
+
+    // only want to consider it a drag as long as we
+    // register a drag of reasonable length
+    if (dx > minDelta || dy > minDelta){
+      flag = 1;
+    }
+
+}, false);
+
+
 window.addEventListener('mouseup', function (e) {
 
-  console.log(e);
-  if(e.target.classList[1] == "popup--safe"){
+  if(e.target.classList[1] == "popup--safe" ||
+     e.target.nodeName == "INPUT" ||
+     e.target.nodeName == "SELECT" ||
+     e.target.nodeName == "TEXTAREA"
+   ){
+    return;
+  }
+
+  if(isOpen){
+    removePopup();
+  }
+
+  if(flag === 0){
     return;
   }
 
   var mx = e.pageX;
   var my = e.pageY;
 
-  if(isOpen){
-    removePopup();
-  }
   var result = getSelectedText();
   string = result.toString();
 
