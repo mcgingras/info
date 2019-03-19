@@ -1,5 +1,4 @@
-// polyfill
-
+// polyfill for removing elements from the screen
 Element.prototype.remove = function() {
     this.parentElement.removeChild(this);
 }
@@ -13,10 +12,22 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
 }
 
 
+
+// Global Variables
 var string = "";
 var body = document.getElementsByTagName("BODY")[0];
 var isOpen = false;
+var isTextbox = false;
+var flag = 0;
+var x1;
+var y1;
+var x2;
+var y2;
+var minDelta = 10;
 
+
+
+// function to get the text that is currently highlighted on the screen.
 var getSelectedText = function () {
   var selectedText = '';
 
@@ -30,6 +41,8 @@ var getSelectedText = function () {
 
   return selectedText;
 };
+
+
 
 
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
@@ -52,7 +65,8 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 });
 
 
-
+// Removes the popup from the screen so we do not have more than one popup
+// rendered at a time. This is why react and state would be ideal right now.
 function removePopup(){
   var node = document.getElementsByClassName('popup')[0];
   node.remove();
@@ -60,7 +74,12 @@ function removePopup(){
   isOpen = false;
 }
 
-function createDiv(mx,my,string){
+
+
+// createPopup renders a popup to the screen. Since I could not figure out
+// how to create an extension in react, I am doing this the old fashion way.
+// It is almost hilarious how medieval this looks.
+function createPopup(mx,my,string){
   var popup = document.createElement("DIV");
   var popup__text = document.createElement("DIV");
   var popup__textarea = document.createElement("DIV");
@@ -94,16 +113,21 @@ function createDiv(mx,my,string){
 // I found that often times I was double clicking on something to copy it,
 // but that didnt mean I was trying to activate the highlight to save.
 // So there is a need to differ between a click and a drag for mouseup.
-var flag = 0;
-var x1;
-var y1;
-var x2;
-var y2;
-var minDelta = 10;
+
 window.addEventListener("mousedown", function(e){
     x1 = e.clientX;
     y1 = e.clienyY;
     flag = 0;
+    isTextbox = false;
+
+    if(e.target.classList[1] == "popup--safe" ||
+       e.target.nodeName == "INPUT" ||
+       e.target.nodeName == "SELECT" ||
+       e.target.nodeName == "TEXTAREA"
+     ){
+       console.log('this is a textbox');
+       isTextbox = true;
+     }
 }, false);
 
 window.addEventListener("mousemove", function(e){
@@ -121,6 +145,9 @@ window.addEventListener("mousemove", function(e){
 }, false);
 
 
+
+// the "MAIN" function.
+// triggers everything else.
 window.addEventListener('mouseup', function (e) {
 
   if(e.target.classList[1] == "popup--safe" ||
@@ -135,7 +162,7 @@ window.addEventListener('mouseup', function (e) {
     removePopup();
   }
 
-  if(flag === 0){
+  if(flag === 0 || isTextbox){
     return;
   }
 
@@ -150,7 +177,7 @@ window.addEventListener('mouseup', function (e) {
 
 
   if(string != "") {
-    createDiv(mx,my,string);
+    createPopup(mx,my,string);
     isOpen = true;
   }
 
