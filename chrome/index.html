@@ -10,10 +10,24 @@
     <script src="background.js"></script>
     <style media="screen">
       *{
-        background-color: #F0F0E7;
+        background-color: #F5F7F6;
         font-family: 'Arial';
       }
+
+      .gif{
+        max-width: 200px;
+        max-height: 200px;
+      }
+
+      .content{
+        bottom: 0px;
+        color: #888;
+        text-decoration: none;
+        font-weight: 800;
+      }
     </style>
-    <p>Saving...</p>
+    <img class="gif"src="book.gif" />
+    <!-- Make this link to wherever the users db is hosted. Deploy with Heroku? -->
+    <a href="http://www.example.com" class="content" target="_blank">Example</a>
   </body>
 </html>

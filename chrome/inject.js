@@ -11,6 +11,69 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
     }
 }
 
+class Highlight{
+  constructor(){
+    this.selection = null;
+    this.string = "";
+    this.comment = "";
+  }
+
+  getSelection(){
+    if (window.getSelection()) {
+      this.selection = window.getSelection();
+    } else if (document.getSelection()) {
+      this.selection = document.getSelection();
+    } else if (document.selection) {
+      this.selection = document.selection.createRange().text;
+    }
+    this.string = this.selection.toString();
+  }
+
+  createHighlight(){
+    var highlight = document.createElement('span');
+    highlight.setAttribute('style', 'background-color: yellow');
+    var string = this.selection.toString();
+    var t = document.createTextNode(string);
+    highlight.appendChild(t);
+    var split = this.selection.focusNode.splitText(this.selection.focusOffset);
+    this.selection.anchorNode.parentElement.insertBefore(highlight,split);
+    this.selection.deleteFromDocument();
+  }
+
+
+  // createPopup renders a popup to the screen. Since I could not figure out
+  // how to create an extension in react, I am doing this the old fashion way.
+  // It is almost hilarious how medieval this looks.
+  createPopup(mx,my){
+    var popup = document.createElement("DIV");
+    var popup__text = document.createElement("DIV");
+    var popup__textarea = document.createElement("DIV");
+    var textarea = document.createElement("TEXTAREA");
+    textarea.id = "comment";
+    var label = document.createElement("LABEL");
+    var textnode = document.createTextNode(this.string);
+    label.innerHTML = "NEW HIGHLIGHT";
+
+    body.appendChild(popup);
+    popup.appendChild(popup__textarea);
+    popup__textarea.appendChild(label);
+    popup__textarea.appendChild(textarea);
+    popup.appendChild(popup__text);
+    popup__text.appendChild(textnode);
+
+    popup.classList.add("popup");
+    popup__textarea.classList.add("popup--edit")
+    textarea.classList.add("textarea");
+    textarea.classList.add("popup--safe");
+    popup__text.classList.add("popup--text");
+    popup__text.classList.add("popup--safe");
+    label.classList.add('popup--label');
+
+    popup.style.left = mx;
+    popup.style.top = my;
+  }
+
+}
 
 
 // Global Variables
@@ -24,24 +87,6 @@ var y1;
 var x2;
 var y2;
 var minDelta = 10;
-
-
-
-// function to get the text that is currently highlighted on the screen.
-var getSelectedText = function () {
-  var selectedText = '';
-
-  if (window.getSelection()) {
-    selectedText = window.getSelection();
-  } else if (document.getSelection()) {
-    selectedText = document.getSelection();
-  } else if (document.selection) {
-    selectedText = document.selection.createRange().text;
-  }
-
-  return selectedText;
-};
-
 
 
 
@@ -70,43 +115,10 @@ chrome.runtime.onMessage.addListener((msg, sender, response) => {
 function removePopup(){
   var node = document.getElementsByClassName('popup')[0];
   node.remove();
-  console.log("removing");
   isOpen = false;
 }
 
 
-
-// createPopup renders a popup to the screen. Since I could not figure out
-// how to create an extension in react, I am doing this the old fashion way.
-// It is almost hilarious how medieval this looks.
-function createPopup(mx,my,string){
-  var popup = document.createElement("DIV");
-  var popup__text = document.createElement("DIV");
-  var popup__textarea = document.createElement("DIV");
-  var textarea = document.createElement("TEXTAREA");
-  textarea.id = "comment";
-  var label = document.createElement("LABEL");
-  var textnode = document.createTextNode(string);
-  label.innerHTML = "NEW HIGHLIGHT";
-
-  body.appendChild(popup);
-  popup.appendChild(popup__textarea);
-  popup__textarea.appendChild(label);
-  popup__textarea.appendChild(textarea);
-  popup.appendChild(popup__text);
-  popup__text.appendChild(textnode);
-
-  popup.classList.add("popup");
-  popup__textarea.classList.add("popup--edit")
-  textarea.classList.add("textarea");
-  textarea.classList.add("popup--safe");
-  popup__text.classList.add("popup--text");
-  popup__text.classList.add("popup--safe");
-  label.classList.add('popup--label');
-
-  popup.style.left = mx;
-  popup.style.top = my;
-}
 
 
 // This is to help differentiate between a click and a drag.
@@ -125,7 +137,6 @@ window.addEventListener("mousedown", function(e){
        e.target.nodeName == "SELECT" ||
        e.target.nodeName == "TEXTAREA"
      ){
-       console.log('this is a textbox');
        isTextbox = true;
      }
 }, false);
@@ -166,18 +177,19 @@ window.addEventListener('mouseup', function (e) {
     return;
   }
 
-  var mx = e.pageX;
-  var my = e.pageY;
+  var my = String(e.pageY) + "px";
+  var mx = String(e.pageX) + "px";
 
-  var result = getSelectedText();
-  string = result.toString();
+  // this needs a lot of work, but at least its sort of there.
+  // 1. if you highlight backwards it gets deleted
+  // 2. if you highlight multiple paragraphs, or the same, it deletes
+  // 3. deleting is not persistent
+  const h = new Highlight();
+  h.getSelection();
+  h.createHighlight();
 
-  my = String(my) + "px";
-  mx = String(mx) + "px";
-
-
-  if(string != "") {
-    createPopup(mx,my,string);
+  if(h.string != "") {
+    h.createPopup(mx,my);
     isOpen = true;
   }
 
