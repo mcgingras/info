@@ -11,6 +11,15 @@ NodeList.prototype.remove = HTMLCollection.prototype.remove = function() {
     }
 }
 
+var DELIMITERS = {
+    start: '~|:;',
+    end: ';:|~'
+};
+
+function escapeRegex(text) {
+    return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+}
+
 class Highlight{
   constructor(){
     this.selection = null;
@@ -30,15 +39,69 @@ class Highlight{
   }
 
   createHighlight(){
-    var highlight = document.createElement('span');
-    highlight.setAttribute('style', 'background-color: yellow');
+    /*
+    STEPS
+    1. From selection, find the anchor or focus, whichever is first.
+    2. Use this node to find all other nodes, iterating through them all until string is matched.
+       For each node, wrap the ends in special characters.
+    3. Replace special characters with Span tags that have a yellow highlight.
+    4. Delete Selection
+     */
+
+    // var highlight = document.createElement('span');
+    // highlight.setAttribute('style', 'background-color: yellow');
+    //
+    // var t = document.createTextNode(string);
+    // highlight.appendChild(t);
+    // var split = this.selection.anchorOffset > this.selection.focusOffset
+    // ? this.selection.anchorNode.splitText(this.selection.anchorOffset)
+    // : this.selection.focusNode.splitText(this.selection.focusOffset);
+
     var string = this.selection.toString();
-    var t = document.createTextNode(string);
-    highlight.appendChild(t);
-    var split = this.selection.focusNode.splitText(this.selection.focusOffset);
-    this.selection.anchorNode.parentElement.insertBefore(highlight,split);
-    this.selection.deleteFromDocument();
+    var container = this.selection.getRangeAt(0).commonAncestorContainer;
+    this.doHighlight(string,this.selection,container);
+    // this.selection.deleteFromDocument();
+    // this.selection.anchorNode.parentElement.insertBefore(highlight,split);
   }
+
+  doHighlight(string, selectionElement, containerElement){
+
+    var charsHighlighted = 0;
+    const anchor = selectionElement.anchorNode;
+    const anchorOffset = selectionElement.anchorOffset;
+    const focus = selectionElement.focusNode;
+    const focusOffset = selectionElement.focusOffset;
+
+    var newText = "";
+
+    // only want to iterate on text nodes
+    if (containerElement.nodeType === Node.TEXT_NODE){
+      var nodeValueLength = containerElement.nodeValue.length;
+      for (var i = 0; i < nodeValueLength; i++) {
+        if (i === anchorOffset){
+          newText += DELIMITERS.start;
+        }
+        if (charsHighlighted === string.length) {
+            newText += DELIMITERS.end;
+            newText += containerElement.nodeValue.substr(i);
+            break;
+        }
+        newText += containerElement.nodeValue[i];
+
+        if(i > anchorOffset){
+          charsHighlighted++;
+        }
+      }
+    }
+
+    containerElement.nodeValue = newText;
+
+    const startRe = new RegExp(escapeRegex(DELIMITERS.start), "g");
+    const endRe = new RegExp(escapeRegex(DELIMITERS.end), "g");
+
+    containerElement.parentElement.innerHTML = containerElement.parentElement.innerHTML.replace(startRe, "<span style='background-color: yellow'>").replace(endRe, "</span>");
+  }
+
 
 
   // createPopup renders a popup to the screen. Since I could not figure out
@@ -93,7 +156,6 @@ var minDelta = 10;
 chrome.runtime.onMessage.addListener((msg, sender, response) => {
   switch (msg.type) {
     case 'requestData':
-      console.log("Request Initiated");
       const comment = document.getElementById('comment').value;
       if (comment == null){
         comment = ""
